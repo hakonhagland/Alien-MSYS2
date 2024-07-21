@@ -25,8 +25,8 @@ $modules{$_} = $_ for qw(
 
 $post_diag = sub {
   use Alien::MSYS;
-  diag 'locaton ', (Alien::MSYS::msys_path()||'-');
-  diag 'method  ', Alien::MSYS->runtime_prop->{my_type};
+  diag 'locaton ', (Alien::MSYS2::msys_path()||'-');
+  diag 'method  ', Alien::MSYS2->runtime_prop->{my_type};
 };
 
 my @modules = sort keys %modules;

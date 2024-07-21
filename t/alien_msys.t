@@ -3,7 +3,7 @@ use Test::Alien::Build;
 use Path::Tiny ();
 use File::chdir;
 
-$Alien::MSYS::VERSION ||= '0.10';
+$Alien::MSYS2::VERSION ||= '0.18';
 
 subtest 'basic' => sub {
 
@@ -53,9 +53,9 @@ subtest 'basic' => sub {
     diag '';
     diag '';
     diag '';
-    my $bin_dir = Alien::MSYS::msys_path() || 'undefined';
+    my $bin_dir = Alien::MSYS2::msys_path() || 'undefined';
     diag "bin_dir  = $bin_dir";
-    my $dist_dir = Path::Tiny->new(Alien::MSYS->dist_dir)->canonpath;
+    my $dist_dir = Path::Tiny->new(Alien::MSYS2->dist_dir)->canonpath;
     diag "dist_dir = $dist_dir";
     diag '';
     diag '';
@@ -85,7 +85,7 @@ subtest 'basic' => sub {
     }
 
     Alien::MSYS::msys(sub {
-      diag "REM Alien::MSYS::msys( ... )";
+      diag "REM Alien::MSYS2::msys( ... )";
       diag '+path';
       diag `path`;
     });

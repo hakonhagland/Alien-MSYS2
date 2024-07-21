@@ -77,45 +77,6 @@ probe sub {
       }
     }
 
-    if(my $mingw_get = which('mingw-get.exe'))
-    {
-      my $bin_dir = path($mingw_get)->parent->parent->child('msys/1.0/bin')->stringify;
-      if(msys_is_okay($bin_dir))
-      {
-        $build->runtime_prop->{my_type} =  'relative to mingw-get.exe';
-        $build->runtime_prop->{my_bin} = $bin_dir;
-        return 'system';
-      }
-    }
-
-    foreach my $maybe (qw( C:\MinGW\msys\1.0\bin ))
-    {
-      my $bin_dir = path($maybe)->stringify;
-      if(msys_is_okay($bin_dir))
-      {
-        $build->runtime_prop->{my_type} =  'default install location';
-        $build->runtime_prop->{my_bin} = $bin_dir;
-        return 'system';
-      }
-    }
-
-    my $path = eval {
-      require Win32;
-      require Win32::Shortcut;
-      my $lnk_name = path(Win32::GetFolderPath(Win32::CSIDL_DESKTOP(), 1))->child('MinGW Installer.lnk')->canonpath;
-      die "No MinGW Installer.lnk" unless -r $lnk_name;
-      my $lnk = Win32::Shortcut->new;
-      $lnk->Load($lnk_name);
-      my $mingw_get = path($lnk->{Path});
-      my $bin_dir = path($mingw_get)->parent->child('msys/1.0/bin');
-      if(msys_is_okay($bin_dir))
-      {
-        $build->runtime_prop->{my_type} =  'MinGW Installer shortcut';
-        $build->runtime_prop->{my_bin} = $bin_dir;
-        return 'system';
-      }
-    };
-
     return 'share';
   }
   else
@@ -125,64 +86,16 @@ probe sub {
 };
 
 share {
+  meta->prop->{start_url} = 'https://repo.msys2.org/distrib/x86_64/';
+  #meta->prop->{start_url} = 'https://github.com/msys2/msys2-installer/releases/download/';
+  #2024-05-07/msys2-base-x86_64-20240507.tar.xz
 
-  meta->prop->{start_url} = 'https://sourceforge.net/projects/mingw/files/Installer/mingw-get/';
+  plugin Download => (
+    filter => qr/^.*\.tar\.xz$/,
+    version => qr/msys2-base-x86_64-([0-9]+)/,
+  );
+  plugin 'Extract' => 'tar.xz';
 
-  plugin 'Download';
-  plugin 'Decode::Mojo';
-  plugin 'Decode::SourceForge';
-  plugin 'Extract' => 'zip';
-
-  download sub {
-    my($build) = @_;
-
-    $build->log("GET @{[ meta->prop->{start_url} ]}");
-
-    my $mingw_get_index_url = do {
-      my $ret = $build->decode($build->fetch);
-      my($first) = grep { $_->{filename} =~ /mingw-get-.*?-([0-9]{8})-([0-9]+)/ } @{ $ret->{list} };
-      die 'unable to find the correct directory for mingw-get' unless $first;
-      $first->{url};
-    };
-
-    $build->log("GET $mingw_get_index_url");
-
-    my $mingw_get_url = do {
-      my $ret = $build->decode($build->fetch($mingw_get_index_url));
-      my($first) = grep { $_->{filename} =~ /mingw-get-.*?-bin.zip/ } @{ $ret->{list} };
-      $first->{url};
-    };
-
-    $build->log("GET $mingw_get_url");
-
-    {
-      my $ret = $build->fetch($mingw_get_url);
-
-      if(defined $ret->{content})
-      {
-        path($ret->{filename})->spew_raw($ret->{content});
-      }
-      elsif(defined $ret->{path})
-      {
-        my $from = path($ret->{path});
-        my $to   = $ret->{filename};
-        if($ret->{tmp})
-        {
-          $from->move($to);
-        }
-        else
-        {
-          $from->copy($to);
-        }
-      }
-      else
-      {
-        die 'get did not return a file';
-      }
-
-    };
-
-  };
 
   meta->around_hook(
     build => sub {

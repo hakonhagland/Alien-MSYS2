@@ -1,4 +1,4 @@
-# Alien::MSYS ![linux](https://github.com/PerlAlien/Alien-MSYS/workflows/linux/badge.svg) ![windows-share](https://github.com/PerlAlien/Alien-MSYS/workflows/windows-share/badge.svg)
+# Alien::MSYS2 ![linux](https://github.com/hakonhagland/Alien-MSYS2/workflows/linux/badge.svg) ![windows-share](https://github.com/hakonhagland/Alien-MSYS2/workflows/windows-share/badge.svg)
 
 Tools required for GNU style configure scripts on Windows
 
@@ -7,7 +7,7 @@ Tools required for GNU style configure scripts on Windows
 from Perl:
 
 ```perl
-use Alien::MSYS;
+use Alien::MSYS2;
 # runs uname from MSYS
 my $uname = msys { `uname` };
 ```
@@ -15,7 +15,7 @@ my $uname = msys { `uname` };
 From Prompt/Makefile
 
 ```
-C:\> perl -MAlien::MSYS -e Alien::MSYS::msys_run uname
+C:\> perl -MAlien::MSYS2 -e Alien::MSYS2::msys_run uname
 ```
 
 # DESCRIPTION
@@ -36,63 +36,48 @@ methods in this order:
 
 - environment variable `PERL_ALIEN_MSYS_BIN`
 
-    If set, this environment variable should be set to the root of `MSYS` (NOT `MinGW`).
-    For example, if you have `MinGW` / `MSYS` installed on `D:` you might use this:
+    If set, this environment variable should be set to the root of `MSYS2` installtion.
+    For example, if you have `MSYS2` installed on `D:` you might use this:
 
     ```
-    C:\> set PERL_ALIEN_MSYS_BIN=D:\MinGW\msys\1.0\bin
+    C:\> set PERL_ALIEN_MSYS_BIN=D:\msys64\usr\bin
     ```
 
     Keep in mind that this environment variable is consulted during both install and at run-time,
     so it is advisable to set this in the System Properties control panel.
 
-- search `PATH` for `mingw-get.exe`
 
-    Second, [Alien::MSYS](https://metacpan.org/pod/Alien::MSYS) searches the `PATH` environment variable for the `mingw-get.exe`
-    program, which is a common method for installing `MinGW` and `MSYS`.  From there
-    if it can deduce the location of `MSYS` it will use that.
-
-- try `C:\MinGW\msys\1.0\bin`
-
-    Next, [Alien::MSYS](https://metacpan.org/pod/Alien::MSYS) tries the default install location.
-
-- Use desktop shortcut for `MinGW Installer`
-
-    Finally, [Alien::MSYS](https://metacpan.org/pod/Alien::MSYS) will try to find `MSYS` from the desktop shortcut created
-    by the GUI installer for `MinGW`.  This method only works if you already have
-    [Win32::Shortcut](https://metacpan.org/pod/Win32::Shortcut) installed, as it is an optional dependency.
-
-If `MSYS` cannot be found using any of these methods, then it will download and install
-`MSYS` in this distribution's share directory.
+If `MSYS2` cannot be found using any of these methods, then it will download and install
+`MSYS2` in this distribution's share directory.
 
 # FUNCTIONS
 
 ## msys
 
 ```perl
-# get the uname from MSYS
+# get the uname from MSYS2
 my $uname = msys { `uname` };
 
-# run with GNU make from MSYS instead of
+# run with GNU make from MSYS2 instead of
 # dmake from Strawberry Perl
 msys { system 'make' };
 ```
 
 This function takes a single argument, a code reference, and runs it with the correctly
 set environment so that calls to the system function or the qx quote like operator will
-use MSYS instead of the default environment.
+use MSYS2 instead of the default environment.
 
 ## msys\_run
 
 ```perl
 # pass command through @ARGV
-C:\> perl -MAlien::MSYS -e Alien::MSYS::msys_run uname
+C:\> perl -MAlien::MSYS2 -e Alien::MSYS2::msys_run uname
 
 # pass command through @_
-C:\> perl -MAlien::MSYS -e "Alien::MSYS::msys_run 'make'; Alien::MSYS::msys_run 'make install'"
+C:\> perl -MAlien::MSYS2 -e "Alien::MSYS2::msys_run 'make'; Alien::MSYS2::msys_run 'make install'"
 ```
 
-This function runs a command with the MSYS environment.  It gets the command and arguments
+This function runs a command with the MSYS2 environment.  It gets the command and arguments
 either as passed to it, or if none are passed the the command is expected to be in
 @ARGV.
 
@@ -103,7 +88,7 @@ succeeds.
 
 ## msys\_path
 
-This function returns the full path to the MSYS bin directory.
+This function returns the full path to the MSYS2 bin directory.
 
 # CAVEATS
 
@@ -118,20 +103,20 @@ can do to avoid this painful cost:
     if it is available.  [Alien::MSYS](https://metacpan.org/pod/Alien::MSYS) is usually only necessary for so called
     `share` installs.
 
-- Pre-install MSYS
+- Pre-install MSYS2
 
-    As mentioned above if you preinstall MSYS and set the `PERL_ALIEN_MSYS_BIN`
+    As mentioned above if you preinstall MSYS2 and set the `PERL_ALIEN_MSYS_BIN`
     environment variable, then you will save yourself some time if you use multiple
     installs of Perl like I do.
 
 - Use another build system
 
     Some projects will provide a makefile that will work with GNU Make and `cmd.exe`
-    that you can build without MSYS.  An example of an Alien that takes advantage of
+    that you can build without MSYS2.  An example of an Alien that takes advantage of
     this is [Alien::libuv](https://metacpan.org/pod/Alien::libuv).
 
     Some projects provide both autoconf and CMake.  Although using CMake reliably
-    requires [Alien::cmake3](https://metacpan.org/pod/Alien::cmake3) for `share` installs, it is much much lighter than [Alien::MSYS](https://metacpan.org/pod/Alien::MSYS).
+    requires [Alien::cmake3](https://metacpan.org/pod/Alien::cmake3) for `share` installs, it is much much lighter than `Alien::MSYS2`.
 
     Also obviously you can open a ticket, or make a pull request with the project that you
     are alienizing to support build systems that don't suck as much as autoconf.
@@ -145,7 +130,7 @@ can do to avoid this painful cost:
 
     MSYS2 / MinGW provides a MSWin32 Perl as part of a Linux / open source like package
     that provides probably all of the libraries that you might want to use as dependencies,
-    and if it doesn't you can build much easier than with Strawberry + Alien::MSYS.
+    and if it doesn't you can build much easier than with Strawberry + Alien::MSYS2.
 
     There are some notes here:
 
